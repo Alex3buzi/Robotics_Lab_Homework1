@@ -35,7 +35,7 @@ public:
         }
 
         timer_ = this->create_wall_timer(
-            std::chrono::seconds(10),
+            std::chrono::seconds(5),
             std::bind(&ArmController::publishCommands, this));
 
         this->declare_parameter<std::vector<double>>("cmd1", {0.0, 0.0, 0.0, 0.0});
@@ -73,18 +73,25 @@ private:
         else if (controller_type_ == "trajectory")
         {
             trajectory_msgs::msg::JointTrajectory traj_msg;
+
+            traj_msg.header.stamp = this->now(); 
+            traj_msg.header.frame_id = "world";  
             traj_msg.joint_names = {"j0", "j1", "j2", "j3"};
 
-            trajectory_msgs::msg::JointTrajectoryPoint point;
-            point.positions = commands[cmd_index_];
-            point.time_from_start = rclcpp::Duration(2, 0); // 2 secondi
+            for (size_t i = 0; i < commands.size(); ++i)
+            {
+                trajectory_msgs::msg::JointTrajectoryPoint point;
+                point.positions = commands[i];
+                point.time_from_start = rclcpp::Duration((i + 1) * 4, 0); 
 
-            traj_msg.points.push_back(point);
+                traj_msg.points.push_back(point);
+            }
+
             cmd_pub_trajectory_->publish(traj_msg);
-            RCLCPP_INFO(this->get_logger(), "Published TRAJECTORY command #%zu", cmd_index_ + 1);
+            RCLCPP_INFO(this->get_logger(), "Published TRAJECTORY command" , commands.size());
+            timer_->cancel();
         }
-
-        cmd_index_ = (cmd_index_ + 1) % commands.size();
+        //cmd_index_ = (cmd_index_ + 1) % commands.size();
     }
 
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_sub_;
