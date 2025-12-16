@@ -32,8 +32,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             'gui': LaunchConfiguration('gui'),
-            'pause': 'true',
-            'gz_args': ['empty.sdf']
+            'gz_args': '-r empty.sdf'
         }.items()
     )
 
