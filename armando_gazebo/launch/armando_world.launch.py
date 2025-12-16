@@ -55,8 +55,7 @@ def generate_launch_description():
         arguments=[
             '-topic', '/robot_description',
             '-entity', 'armando',
-            '-z', '0.0',
-            '-unpause'
+            '-z', '0.2',
         ],
         output='screen'
     )
